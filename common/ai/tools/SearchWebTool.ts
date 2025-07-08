@@ -8,7 +8,7 @@ const paramsObject = z.object({
   query: z.string().min(1),
 });
 
-// Hook function types specific to SearchWebTool
+// Hook function types
 type TBeforeExecuteHook = (
   params: z.infer<typeof paramsObject>
 ) => any | Promise<any>;
@@ -19,11 +19,12 @@ type TAfterExecuteHook = (
 ) => any | Promise<any>;
 
 /**
- * SearchWebTool class that extends BaseAITool
- * Provides web search functionality with before/after execution hooks
+ * Tool for searching the web
  */
 class SearchWebTool extends BaseAITool<TBeforeExecuteHook, TAfterExecuteHook> {
-  constructor(config?: BaseAIToolConfig<TBeforeExecuteHook, TAfterExecuteHook, any>) {
+  constructor(
+    config?: BaseAIToolConfig<TBeforeExecuteHook, TAfterExecuteHook, any>
+  ) {
     super(config);
   }
 
@@ -34,7 +35,7 @@ class SearchWebTool extends BaseAITool<TBeforeExecuteHook, TAfterExecuteHook> {
       execute: async ({ query }) => {
         // Execute before hook if available
         if (this.beforeExecute) await this.beforeExecute({ query });
-        
+
         // Perform the web search
         const results = await searchWeb(query);
 

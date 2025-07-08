@@ -53,8 +53,12 @@ class SearchResultEvalTool extends BaseAITool<
       parameters: z.object({}),
       execute: async () => {
         const context = await this.getContext();
-        if (!context)
-          throw new Error("SearchResultEvalTool requires context to be set.");
+        
+        // Handle case when there are no more results to evaluate
+        if (!context) {
+          return "No more search results to evaluate. All results have been processed.";
+        }
+        
         const { model, query, pendingResult, accumulatedSources } = context;
 
         // Execute before hook if available
@@ -69,17 +73,13 @@ class SearchResultEvalTool extends BaseAITool<
           model,
           prompt: `Evaluate whether the search results are relevant and will help answer the following query: ${query}. If the page already exists in the existing results, mark it as irrelevant.
 
-                    <search_results>
-                    ${JSON.stringify(pendingResult)}
-                    </search_results>
-        
-                    <existing_results>
-                    ${JSON.stringify(
-                      accumulatedSources.map((result) => result.url)
-                    )}
-                    </existing_results>
-        
-                    `,
+<search_results>
+${JSON.stringify(pendingResult)}
+</search_results>
+
+<existing_results>
+${JSON.stringify(accumulatedSources.map((result) => result.url))}
+</existing_results>`,
           output: "enum",
           enum: ["relevant", "irrelevant"],
         });

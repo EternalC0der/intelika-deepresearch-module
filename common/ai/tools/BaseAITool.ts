@@ -5,7 +5,7 @@ import { tool } from "ai";
  * Tools can define their own context type
  */
 interface IContextProvider<TContext = any> {
-  getContext(): TContext | Promise<TContext>;
+  getContext(): TContext | null | Promise<TContext | null>;
 }
 
 /**
@@ -45,9 +45,9 @@ abstract class BaseAITool<TBeforeHook = any, TAfterHook = any, TContext = any> {
 
   /**
    * Get the current context (static or from provider)
-   * @returns The context object or undefined if not available
+   * @returns The context object, null, or undefined if not available
    */
-  protected async getContext(): Promise<TContext | undefined> {
+  protected async getContext(): Promise<TContext | null | undefined> {
     if (this.contextProvider) {
       return await this.contextProvider.getContext();
     }
@@ -120,7 +120,9 @@ abstract class BaseAITool<TBeforeHook = any, TAfterHook = any, TContext = any> {
    * Check if context is available (static or provider)
    */
   protected hasContext(): boolean {
-    return this.staticContext !== undefined || this.contextProvider !== undefined;
+    return (
+      this.staticContext !== undefined || this.contextProvider !== undefined
+    );
   }
 }
 
