@@ -74,7 +74,7 @@ export function createWorkflowDependencies(args: {
         abortSignal,
         output: Output.object({
           schema: z.object({
-            queries: z.array(z.string().min(1)).min(1).max(Math.max(1, breadth)),
+            queries: z.array(z.string().min(1)).min(1),
           }),
         }),
         prompt: [
@@ -275,9 +275,7 @@ export function createWorkflowDependencies(args: {
         output: Output.object({
           schema: z.object({
             learning: z.string().min(1),
-            followUpQuestions: z
-              .array(z.string().min(1))
-              .max(Math.max(1, maxFollowUpQuestions)),
+            followUpQuestions: z.array(z.string().min(1)),
           }),
         }),
         prompt: [

@@ -1,8 +1,20 @@
 import type { LanguageModel } from "ai";
-import type { DeepResearchInput, ModelReference } from "./types";
+import type {
+  DeepResearchInput,
+  ModelReference,
+  SupportedModelProvider,
+} from "./types";
 
 export function normalizeTopic(input: DeepResearchInput): string {
-  return typeof input === "string" ? input : input.topic;
+  if (typeof input === "string") {
+    return input;
+  }
+
+  if ("topic" in input) {
+    return input.topic;
+  }
+
+  return input.prompt;
 }
 
 export function describeModel(model: LanguageModel): ModelReference {
@@ -29,6 +41,43 @@ export function createRunTimestamp(): string {
 
 export function dedupeStrings(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+}
+
+export function parseModelReference(model: string): {
+  provider?: SupportedModelProvider;
+  modelId: string;
+} {
+  const trimmed = model.trim();
+  const [provider, ...rest] = trimmed.split("/");
+
+  if (
+    (provider === "anthropic" || provider === "google" || provider === "openai") &&
+    rest.length > 0
+  ) {
+    return {
+      provider,
+      modelId: rest.join("/"),
+    };
+  }
+
+  if (trimmed.startsWith("claude-")) {
+    return { provider: "anthropic", modelId: trimmed };
+  }
+
+  if (trimmed.startsWith("gemini-")) {
+    return { provider: "google", modelId: trimmed };
+  }
+
+  if (
+    trimmed.startsWith("gpt-") ||
+    trimmed.startsWith("o1") ||
+    trimmed.startsWith("o3") ||
+    trimmed.startsWith("o4")
+  ) {
+    return { provider: "openai", modelId: trimmed };
+  }
+
+  return { modelId: trimmed };
 }
 
 export function createFollowUpTopic(args: {

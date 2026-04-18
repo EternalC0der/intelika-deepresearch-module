@@ -1,6 +1,8 @@
 import type { LanguageModel } from "ai";
 
-export type DeepResearchInput = string | { topic: string };
+export type DeepResearchInput = string | { topic: string } | { prompt: string };
+
+export type SupportedModelProvider = "anthropic" | "google" | "openai";
 
 export type DeepResearchStatus = "completed" | "aborted";
 
@@ -129,6 +131,23 @@ export interface CreateDeepResearchAgentConfig {
   search?: SearchExecutor;
   defaultDepth?: number;
   defaultBreadth?: number;
+  maxResultsPerQuery?: number;
+  maxQueriesPerRun?: number;
+  maxFollowUpQuestions?: number;
+  maxCharactersPerResult?: number;
+}
+
+export type DeepResearchModelConfig = LanguageModel | string;
+
+export interface DeepResearchRunConfig {
+  prompt: string;
+  researchModel: DeepResearchModelConfig;
+  synthesisModel?: DeepResearchModelConfig;
+  modelProvider?: SupportedModelProvider;
+  exaApiKey?: string;
+  search?: SearchExecutor;
+  depth?: number;
+  breadth?: number;
   maxResultsPerQuery?: number;
   maxQueriesPerRun?: number;
   maxFollowUpQuestions?: number;

@@ -1,12 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import { MockLanguageModelV3 } from "ai/test";
 import { buildReportPrompt } from "../common/deep-research/report";
+import { normalizeTopic, parseModelReference } from "../common/deep-research/utils";
 import {
   executeDeepResearchWorkflow,
   streamDeepResearchWorkflow,
   type WorkflowDependencies,
 } from "../common/deep-research/workflow";
-import type { DeepResearchEvent, Learning, MinimalSearchResult } from "../common/deep-research/types";
+import type {
+  DeepResearchEvent,
+  Learning,
+  MinimalSearchResult,
+} from "../common/deep-research/types";
 
 const mockModel = new MockLanguageModelV3({
   provider: "mock-provider",
@@ -220,5 +225,20 @@ describe("deep research workflow", () => {
     expect(prompt).toContain("## Key Findings");
     expect(prompt).toContain("## Evidence and Sources");
     expect(prompt).toContain('"topic": "topic"');
+  });
+
+  test("normalizeTopic accepts prompt-based input objects", () => {
+    expect(
+      normalizeTopic({
+        prompt: "Analyze trends in enterprise AI adoption for 2026",
+      }),
+    ).toBe("Analyze trends in enterprise AI adoption for 2026");
+  });
+
+  test("parseModelReference infers the Anthropic provider from Claude model ids", () => {
+    expect(parseModelReference("claude-haiku-4-5-20251001")).toEqual({
+      provider: "anthropic",
+      modelId: "claude-haiku-4-5-20251001",
+    });
   });
 });
